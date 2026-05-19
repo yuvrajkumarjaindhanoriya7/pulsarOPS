@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocForge — AI Document Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundled.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #2a2a3a;
+    --accent: #7c5cfc;
+    --accent2: #fc5c7d;
+    --accent3: #5cf8fc;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --success: #5cfca8;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 600px; height: 600px; background: rgba(124,92,252,0.12); top: -200px; right: -200px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(252,92,125,0.08); bottom: -100px; left: -100px; }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(124,92,252,0.12);
+    border: 1px solid rgba(124,92,252,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .logo-badge::before { content: '◆'; font-size: 8px; }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  h1 span.grad {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 1.1rem;
+    font-weight: 300;
+    max-width: 480px;
+    margin-inline: auto;
+    line-height: 1.6;
+  }
+
+  /* Doc type selector */
+  .type-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  .type-btn {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .type-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+    border-radius: inherit;
+  }
+  .type-btn[data-type="doc"]::before { background: linear-gradient(135deg, rgba(124,92,252,0.15), transparent); }
+  .type-btn[data-type="sheet"]::before { background: linear-gradient(135deg, rgba(92,252,168,0.15), transparent); }
+  .type-btn[data-type="ppt"]::before { background: linear-gradient(135deg, rgba(252,92,125,0.15), transparent); }
+
+  .type-btn:hover, .type-btn.active {
+    transform: translateY(-2px);
+    border-color: transparent;
+  }
+  .type-btn:hover::before, .type-btn.active::before { opacity: 1; }
+  .type-btn[data-type="doc"]:hover, .type-btn[data-type="doc"].active { border-color: var(--accent); box-shadow: 0 0 20px rgba(124,92,252,0.2); }
+  .type-btn[data-type="sheet"]:hover, .type-btn[data-type="sheet"].active { border-color: var(--success); box-shadow: 0 0 20px rgba(92,252,168,0.2); }
+  .type-btn[data-type="ppt"]:hover, .type-btn[data-type="ppt"].active { border-color: var(--accent2); box-shadow: 0 0 20px rgba(252,92,125,0.2); }
+
+  .type-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .type-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: block;
+  }
+  .type-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  /* Input panel */
+  .input-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .field-group {
+    flex: 1;
+  }
+
+  label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+  input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+  }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+  select option { background: var(--surface); }
+
+  .advanced-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    user-select: none;
+    width: fit-content;
+  }
+  .advanced-toggle:hover { color: var(--accent); }
+  .chevron { transition: transform 0.2s; display: inline-block; }
+  .chevron.open { transform: rotate(90deg); }
+
+  .advanced-fields {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .advanced-fields.hidden { display: none !important; }
+  .full-width { grid-column: span 2; }
+
+  /* Generate button */
+  .generate-btn {
+    background: linear-gradient(135deg, var(--accent), #5a3fd4);
+    border: none;
+    border-radius: 14px;
+    padding: 16px 32px;
+    color: #fff;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.25s;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    min-width: 160px;
+  }
+  .generate-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.1);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .generate-btn:hover:not(:disabled)::after { opacity: 1; }
+  .generate-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,92,252,0.35); }
+  .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Status / Log */
+  .status-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+  .status-panel.visible { display: block; }
+
+  .status-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .log-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    color: var(--muted);
+    padding: 5px 0;
+    transition: color 0.3s;
+  }
+  .log-line.active { color: var(--text); }
+  .log-line.done { color: var(--success); }
+  .log-line.error { color: var(--accent2); }
+
+  .log-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .log-line.active .log-dot { background: var(--accent); animation: pulse 1s infinite; }
+  .log-line.done .log-dot { background: var(--success); }
+  .log-line.error .log-dot { background: var(--accent2); }
+
+  /* Preview panel */
+  .preview-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    display: none;
+    animation: fadeUp 0.4s ease both;
+  }
+  .preview-panel.visible { display: block; }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .preview-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .doc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .doc-badge.doc { background: rgba(124,92,252,0.15); color: var(--accent); border: 1px solid rgba(124,92,252,0.3); }
+  .doc-badge.sheet { background: rgba(92,252,168,0.12); color: var(--success); border: 1px solid rgba(92,252,168,0.3); }
+  .doc-badge.ppt { background: rgba(252,92,125,0.12); color: var(--accent2); border: 1px solid rgba(252,92,125,0.3); }
+
+  .download-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(92,252,168,0.1);
+    border: 1px solid rgba(92,252,168,0.3);
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: var(--success);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .download-btn:hover {
+    background: rgba(92,252,168,0.18);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(92,252,168,0.15);
+  }
+
+  /* Content preview */
+  .content-preview {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    max-height: 420px;
+    overflow-y: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .content-preview::-webkit-scrollbar { width: 4px; }
+  .content-preview::-webkit-scrollbar-track { background: transparent; }
+  .content-preview::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .content-preview h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 20px 0 8px;
+  }
+  .content-preview h2:first-child { margin-top: 0; }
+  .content-preview h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 14px 0 6px;
+  }
+  .content-preview p { margin-bottom: 10px; }
+  .content-preview ul { padding-left: 20px; margin-bottom: 10px; }
+  .content-preview li { margin-bottom: 4px; }
+  .content-preview table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 0.82rem; }
+  .content-preview th { background: rgba(124,92,252,0.15); padding: 8px 12px; text-align: left; font-weight: 600; color: var(--accent); border: 1px solid var(--border); }
+  .content-preview td { padding: 7px 12px; border: 1px solid var(--border); color: var(--muted); }
+  .content-preview .slide-card {
+    background: rgba(252,92,125,0.06);
+    border: 1px solid rgba(252,92,125,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+  }
+  .content-preview .slide-num { color: var(--accent2); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+
+  /* Success bar */
+  .success-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(92,252,168,0.08);
+    border: 1px solid rgba(92,252,168,0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 20px;
+    font-size: 0.85rem;
+    color: var(--success);
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(124,92,252,0.3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .type-selector { grid-template-columns: 1fr; }
+    .input-row { flex-direction: column; }
+    .generate-btn { width: 100%; }
+    .advanced-fields { grid-template-columns: 1fr; }
+    .full-width { grid-column: span 1; }
+    .preview-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<div class="container">
+  <header>
+    <div class="logo-badge">AI Document Studio</div>
+    <h1>DocForge<br><span class="grad">by Claude</span></h1>
+    <p class="subtitle">Generate polished documents, spreadsheets, and presentations on any topic using AI — then download instantly.</p>
+  </header>
+
+  <div class="type-selector">
+    <button class="type-btn active" data-type="doc" onclick="selectType('doc', this)">
+      <span class="type-icon">📄</span>
+      <span class="type-label">Document</span>
+      <span class="type-desc">Reports, essays,<br>articles & memos</span>
+    </button>
+    <button class="type-btn" data-type="sheet" onclick="selectType('sheet', this)">
+      <span class="type-icon">📊</span>
+      <span class="type-label">Spreadsheet</span>
+      <span class="type-desc">Tables, data &<br>financial sheets</span>
+    </button>
+    <button class="type-btn" data-type="ppt" onclick="selectType('ppt', this)">
+      <span class="type-icon">✨</span>
+      <span class="type-label">Presentation</span>
+      <span class="type-desc">Slides, decks &<br>pitch materials</span>
+    </button>
+  </div>
+
+  <div class="input-panel">
+    <div class="input-row">
+      <div class="field-group">
+        <label>Topic / Title</label>
+        <input type="text" id="topicInput" placeholder="e.g. Climate Change, Quarterly Sales Report, AI in Healthcare…" />
+      </div>
+      <button class="generate-btn" id="generateBtn" onclick="generate()">
+        ✦ Generate
+      </button>
+    </div>
+
+    <div class="advanced-toggle" onclick="toggleAdvanced()">
+      <span class="chevron" id="chevron">›</span>
+      Advanced options
+    </div>
+
+    <div class="advanced-fields hidden" id="advancedFields">
+      <div class="field-group full-width">
+        <label>Anthropic API Key</label>
+        <input type="text" id="apiKeyInput" placeholder="Paste your sk-ant-... key here (kept locally in your browser)" />
+      </div>
+      <div class="field-group">
+        <label>Additional instructions</label>
+        <textarea id="extraInstructions" placeholder="Any specific requirements, tone, structure…"></textarea>
+      </div>
+      <div class="field-group">
+        <label>Length / Detail</label>
+        <select id="lengthSelect">
+          <option value="concise">Concise</option>
+          <option value="standard" selected>Standard</option>
+          <option value="detailed">Detailed</option>
+          <option value="comprehensive">Comprehensive</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-panel" id="statusPanel">
+    <div class="status-title">Generating</div>
+    <div class="log-line" id="log1"><div class="log-dot"></div><span id="log1text">Connecting to Claude…</span></div>
+    <div class="log-line" id="log2"><div class="log-dot"></div><span id="log2text">Crafting content…</span></div>
+    <div class="log-line" id="log3"><div class="log-dot"></div><span id="log3text">Building file…</span></div>
+    <div class="log-line" id="log4"><div class="log-dot"></div><span id="log4text">Ready to download</span></div>
+  </div>
+
+  <div class="preview-panel" id="previewPanel">
+    <div class="preview-header">
+      <div class="preview-meta">
+        <span class="doc-badge" id="docBadge">.docx</span>
+        <span id="previewTitle" style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;"></span>
+      </div>
+      <a class="download-btn" id="downloadLink" href="#" download>
+        ↓ Download
+      </a>
+    </div>
+    <div class="content-preview" id="contentPreview"></div>
+    <div class="success-bar">
+      ✓ File generated successfully — click Download to save to your device
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedType = 'doc';
+let advancedOpen = false;
+let generatedBlob = null;
+let generatedFilename = '';
+
+function selectType(type, el) {
+  selectedType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleAdvanced() {
+  advancedOpen = !advancedOpen;
+  document.getElementById('advancedFields').classList.toggle('hidden', !advancedOpen);
+  document.getElementById('chevron').classList.toggle('open', advancedOpen);
+}
+
+function setLog(id, state, text) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.className = 'log-line ' + state;
+    if (text) el.querySelector('span').textContent = text;
+  }
+}
+
+function resetLogs() {
+  ['log1','log2','log3','log4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'log-line';
+  });
+  document.getElementById('log1text').textContent = 'Connecting to Claude…';
+  document.getElementById('log2text').textContent = 'Crafting content…';
+  document.getElementById('log3text').textContent = 'Building file…';
+  document.getElementById('log4text').textContent = 'Ready to download';
+}
+
+async function callClaude(prompt) {
+  const apiKey = document.getElementById('apiKeyInput').value.trim();
+  if (!apiKey) {
+    throw new Error('Please enter your Anthropic API Key under Advanced options.');
+  }
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-3-5-sonnet-latest',
+      max_tokens: 4000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error?.message || 'API connection failed with status code: ' + res.status);
+  }
+  
+  const data = await res.json();
+  return data.content.map(c => c.text || '').join('');
+}
+
+async function generate() {
+  const topic = document.getElementById('topicInput').value.trim();
+  if (!topic) { document.getElementById('topicInput').focus(); return; }
+
+  const extra = document.getElementById('extraInstructions').value.trim();
+  const length = document.getElementById('lengthSelect').value;
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Working…';
+
+  document.getElementById('statusPanel').classList.add('visible');
+  document.getElementById('previewPanel').classList.remove('visible');
+  resetLogs();
+
+  t
