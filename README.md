@@ -1,6 +1,6 @@
-# 🏹 Sagittarius Automation
+# 🏹 PulsarOPS Automation
 
-**Sagittarius Automation** is a  automation service designed to automate repetitive tasks several times
+**PulsarOPS Automation** is a  automation service designed to automate repetitive tasks several times
 
 ---
 
