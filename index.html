@@ -1,4 +1,4 @@
-I<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -30,6 +30,7 @@ I<!DOCTYPE html>
             align-items: center;
             overflow-x: hidden;
             position: relative;
+            padding: 4rem 0; /* Added padding for top/bottom spacing */
         }
 
         /* Tech Glow Background Effects */
@@ -49,10 +50,11 @@ I<!DOCTYPE html>
         body::after { bottom: 10%; right: 15%; }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             text-align: center;
             padding: 2rem;
             z-index: 1;
+            margin-bottom: 2rem;
         }
 
         .logo-area {
@@ -82,10 +84,9 @@ I<!DOCTYPE html>
 
         .links-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* Changed to 3 columns to host the new link cleanly */
             gap: 1.5rem;
             width: 100%;
-            max-width: 600px;
             margin: 0 auto;
         }
 
@@ -93,7 +94,7 @@ I<!DOCTYPE html>
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             backdrop-filter: blur(12px);
-            padding: 2rem;
+            padding: 2rem 1.5rem;
             border-radius: 16px;
             text-decoration: none;
             color: var(--text-color);
@@ -104,7 +105,7 @@ I<!DOCTYPE html>
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 140px;
+            min-height: 150px;
         }
 
         /* Tech border glow on hover */
@@ -160,17 +161,17 @@ I<!DOCTYPE html>
         }
 
         footer {
-            position: absolute;
-            bottom: 2rem;
+            margin-top: auto;
+            padding-top: 2rem;
             color: #475569;
             font-size: 0.85rem;
             letter-spacing: 0.05em;
         }
 
         /* Responsive Design */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
-            .links-container { grid-template-columns: 1fr; }
+            .links-container { grid-template-columns: 1fr; max-width: 400px; }
             .nav-card { min-height: 120px; }
         }
     </style>
@@ -178,36 +179,40 @@ I<!DOCTYPE html>
 <body>
 
     <div class="container">
-        <div class="logo-area">
-            </div>
+        <div class="logo-area"></div>
         <h1>CYGNUS Automation</h1>
-        <p class="subtitle">automate tasks with us :), for free.</p>
-        
+        <p class="subtitle">Automate tasks with us for free.</p>
+
         <div class="links-container">
             <a href="https://yjdcygnusautomationspptdocxecxlfile.netlify.app/" class="nav-card">
                 <span class="status-tag">Ready to link</span>
-                <h3>automation model</h3>
-                <p> doc,sheet,ppt automation</p>
+                <h3>Automation Model</h3>
+                <p>Doc, Sheet, & PPT automation</p>
             </a>
 
-            <a href="https://yjdcygnusautomationsextensions.netlify.app/" class="nav-card"></a>
+            <a href="https://yjdcygnusautomationsextensions.netlify.app/" class="nav-card">
                 <span class="status-tag">Ready to link</span>
-                <h3>autoextenstion model</h3>
-                <p>automation via extension/p>
-            
+                <h3>Auto-Extension Model</h3>
+                <p>Automation via extension</p>
+            </a>
+
+            <a href="https://yjdcygnusautomationwithoutextension.netlify.app/" class="nav-card">
+                <span class="status-tag">Ready to link</span>
+                <h3>Console Model</h3>
+                <p>Automation without extensions</p>
+            </a>
         </div>
     </div>
-        <div class="container">
-        <div class="logo-area">
-            </div>
-        <h1>CYGNUS Automation console</h1>
-        <p class="subtitle">automate tasks without extensions.</p>
-        
-        <div class="links-container">
-            <a href="https://yjdcygnusautomationwithoutextension.netlify.app/" class="nav-card"></a>
-                <span class="status-tag">Ready to link</span>
 
-    
+    <div class="container">
+        <div class="links-container" style="max-width: 400px;">
+            <a href="https://yjdcygnusterminusautomation.netlify.app/" class="nav-card" style="width: 100%;">
+                <span class="status-tag">New</span>
+                <h3>Terminus Automation</h3>
+                <p>Access the core terminal ecosystem</p>
+            </a>
+        </div>
+    </div>
 
     <footer>
         &copy; 2026 Sagittarius Automation. All rights reserved.
