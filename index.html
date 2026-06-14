@@ -30,7 +30,7 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
-            padding: 4rem 0; /* Added padding for top/bottom spacing */
+            padding: 4rem 0;
         }
 
         /* Tech Glow Background Effects */
@@ -55,6 +55,7 @@
             padding: 2rem;
             z-index: 1;
             margin-bottom: 2rem;
+            width: 100%;
         }
 
         .logo-area {
@@ -84,7 +85,7 @@
 
         .links-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* Changed to 2 columns to host the remaining two cards evenly */
+            grid-template-columns: repeat(3, 1fr); /* Updated to 3 columns to perfectly fit all 3 buttons */
             gap: 1.5rem;
             width: 100%;
             margin: 0 auto;
@@ -94,7 +95,7 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             backdrop-filter: blur(12px);
-            padding: 2rem 1.5rem;
+            padding: 2.5rem 1.5rem 2rem 1.5rem;
             border-radius: 16px;
             text-decoration: none;
             color: var(--text-color);
@@ -104,8 +105,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 150px;
+            justify-content: space-between;
+            min-height: 180px;
+            cursor: pointer;
         }
 
         /* Tech border glow on hover */
@@ -122,11 +124,16 @@
         .nav-card:hover {
             transform: translateY(-5px);
             border-color: transparent;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .nav-card:hover::before {
             opacity: 0.15;
+        }
+
+        .text-wrapper {
+            margin-bottom: 1.5rem;
+            width: 100%;
         }
 
         .nav-card h3 {
@@ -145,6 +152,28 @@
         .nav-card p {
             font-size: 0.875rem;
             color: #64748b;
+            line-height: 1.4;
+        }
+
+        /* Sleek Button inside the card */
+        .card-btn {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .nav-card:hover .card-btn {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
         }
 
         .status-tag {
@@ -155,7 +184,7 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             padding: 0.25rem 0.5rem;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
             color: #64748b;
         }
@@ -169,10 +198,14 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
+            .links-container { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
             h1 { font-size: 2.5rem; }
             .links-container { grid-template-columns: 1fr; max-width: 400px; }
-            .nav-card { min-height: 120px; }
+            .nav-card { min-height: 160px; }
         }
     </style>
 </head>
@@ -186,23 +219,32 @@
         <div class="links-container">
             <a href="https://yjdcygnusautomationspptdocxecxlfile.netlify.app/" class="nav-card">
                 <span class="status-tag">Ready to link</span>
-                <h3>Automation Model</h3>
-                <p>Doc, Sheet, & PPT automation</p>
+                <div class="text-wrapper">
+                    <h3>Automation Model</h3>
+                    <p>Doc, Sheet, & PPT automation</p>
+                </div>
+                <div class="card-btn">Launch Model</div>
             </a>
 
             <a href="https://yjdcygnusautomationsextensions.netlify.app/" class="nav-card">
                 <span class="status-tag">New</span>
-                <h3>Extension Automater</h3>
-                <p>Access the automation ecosystem with extensions</p>
+                <div class="text-wrapper">
+                    <h3>Extension Automater</h3>
+                    <p>Access the automation ecosystem with extensions</p>
+                </div>
+                <div class="card-btn">Get Extension</div>
             </a>
-        </div>
-            <a href="https://yjdcygnusautomationwithoutextension.netlify.app/" class="nav-card">
+
+            <a href="
+https://yjdcygnuscccautomation.netlify.app/" class="nav-card">
                 <span class="status-tag">New</span>
-                <h3>Cloud Automater</h3>
-                <p>Access the core terminal ecosystem</p>
+                <div class="text-wrapper">
+                    <h3>Cloud Automater</h3>
+                    <p>Access the core terminal ecosystem</p>
+                </div>
+                <div class="card-btn">Open Terminal</div>
             </a>
         </div>
-    </div>
     </div>
 
     <footer>
